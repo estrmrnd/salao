@@ -1,0 +1,14 @@
+# Next.js
+frontend/.next/
+frontend/node_modules/
+
+# Ambiente
+frontend/.env
+frontend/.env.local
+backend/.env
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
