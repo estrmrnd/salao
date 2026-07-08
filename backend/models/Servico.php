@@ -103,4 +103,29 @@ class Servico
             $salao_id
         ]);
     }
+
+    public function buscar($id, $salao_id)
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                s.id,
+                s.nome,
+                s.descricao,
+                s.preco,
+                s.duracao_min,
+                s.ativo,
+                s.categoria_id
+            FROM servicos s
+            WHERE s.id = ?
+                AND s.salao_id = ?
+                LIMIT 1
+        ");
+
+        $stmt->execute([
+            $id,
+            $salao_id
+        ]);
+
+        return $stmt->fetch();
+    }
 }

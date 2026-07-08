@@ -8,7 +8,7 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 $model = new Servico();
 
 // Temporário até implementarmos autenticação
-$salao_id = 1;
+$salao_id = $_GET['salao_id'] ?? 1;
 
 if ($metodo === 'GET') {
 
