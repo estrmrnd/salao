@@ -18,7 +18,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.senha) return null
 
-        const res = await fetch('http://localhost/salao/api/auth.php', {
+        const res = await fetch('http://backend:8000/api/auth.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

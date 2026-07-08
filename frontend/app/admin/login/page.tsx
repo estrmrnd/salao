@@ -23,6 +23,7 @@ export default function AdminLogin() {
       senha,
       redirect: false,
     })
+    console.log('LOGIN RESPONSE:', res)
     setLoading(false)
     if (res?.error) {
       setErro('Email ou senha incorretos.')
