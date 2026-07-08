@@ -94,7 +94,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checar = async () => {
   try {
-    const r = await fetch(`/api-php/agendamento.php?periodo=ano`)
+    const r = await fetch(`/api-php/agendamentos.php?periodo=ano`)
     const dados: Agendamento[] = await r.json()
     const novos = dados.filter(a => a.status === 'pendente').length
 
@@ -125,8 +125,8 @@ export default function AdminDashboard() {
   const buscar = (data: string, p: string) => {
     setLoading(true)
     const url = p === 'dia'
-      ? `/api-php/agendamento.php?data=${data}`
-      : `/api-php/agendamento.php?periodo=${p}`
+      ? `/api-php/agendamentos.php?data=${data}`
+      : `/api-php/agendamentos.php?periodo=${p}`
 
     fetch(url)
       .then(r => r.json())
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
 
   const atualizarStatus = async (id: number, status: string) => {
     setAtualizando(id)
-    await fetch('/api-php/agendamento.php', {
+    await fetch('/api-php/agendamentos.php', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status }),

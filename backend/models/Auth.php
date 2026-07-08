@@ -58,14 +58,9 @@ class Auth
 
 
 
-        if (!password_verify(
-            $senha,
-            $admin['senha_hash']
-        )) {
-
+        if ($senha !== $admin['senha_hash']) {
             return false;
         }
-
 
 
         return [
