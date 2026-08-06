@@ -3,7 +3,18 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
-type Salao = { id: number; nome: string; slug: string; logo_url: string | null }
+type Salao = {
+  id: number
+  nome: string
+  slug: string
+  logo_url: string | null
+  categorias: {
+    id: number
+    nome: string
+    servicos: Servico[]
+  }[]
+}
+
 type Servico = {
   id: number
   nome: string
@@ -23,20 +34,28 @@ export default function PaginaSalao() {
   const [notFound, setNotFound] = useState(false)
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('Todos')
 
-  useEffect(() => {
-    fetch(`/api-php/salao.php?slug=${slug}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(s => {
-        setSalao(s)
-        return fetch(`/api-php/servicos.php?salao_id=${s.id}`)
-      })
-      .then(r => r.json())
-      .then(data => {
-        setServicos(data.filter((s: Servico) => s.ativo === '1'))
-        setLoading(false)
-      })
-      .catch(() => { setNotFound(true); setLoading(false) })
-  }, [slug])
+useEffect(() => {
+  fetch(`/api-php/salao.php?slug=${slug}`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(s => {
+      setSalao(s)
+
+      const listaServicos = s.categorias.flatMap((categoria: any) =>
+        categoria.servicos.map((servico: any) => ({
+          ...servico,
+          categoria: categoria.nome,
+          ativo: '1'
+        }))
+      )
+
+      setServicos(listaServicos)
+      setLoading(false)
+    })
+    .catch(() => {
+      setNotFound(true)
+      setLoading(false)
+    })
+}, [slug])
 
   const categorias = ['Todos', ...Array.from(new Set(servicos.map(s => s.categoria)))]
   const filtrados = categoriaSelecionada === 'Todos'

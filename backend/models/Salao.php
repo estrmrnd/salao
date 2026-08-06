@@ -14,82 +14,105 @@ class Salao
     }
 
     // Busca salão pelo slug
-    public function buscarPorSlug($slug)
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT
-                id,
-                nome,
-                slug,
-                logo_url,
-                telefone,
-                email,
-                endereco,
-                ativo
-            FROM saloes
-            WHERE slug = ?
-            AND ativo = 1
-            LIMIT 1
-        ");
+public function buscarPorSlug($slug)
+{
+    $stmt = $this->pdo->prepare("
+        SELECT
+            id,
+            nome,
+            slug,
+            logo_url,
+            telefone,
+            email,
+            endereco,
+            ativo
+        FROM saloes
+        WHERE slug = ?
+        AND ativo = 1
+        LIMIT 1
+    ");
+
+    $stmt->execute([
+        $slug
+    ]);
+
+    $salao = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-        $stmt->execute([
-            $slug
-        ]);
-
-
-        return $stmt->fetch();
+    if (!$salao) {
+        return false;
     }
 
-    // Busca salão pelo ID
-    public function buscar($id)
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT
-                id,
-                nome,
-                slug,
-                logo_url,
-                telefone,
-                email,
-                endereco,
-                ativo
-            FROM saloes
-            WHERE id = ?
-            LIMIT 1
-        ");
+
+    // Busca categorias e serviços
+    $stmt = $this->pdo->prepare("
+        SELECT
+            c.id AS categoria_id,
+            c.nome AS categoria_nome,
+
+            s.id AS servico_id,
+            s.nome AS servico_nome,
+            s.descricao,
+            s.preco,
+            s.duracao_min,
+            s.ativo
+
+        FROM categorias c
+
+        LEFT JOIN servicos s
+            ON s.categoria_id = c.id
+
+        WHERE c.salao_id = ?
+
+        ORDER BY c.id, s.id
+    ");
 
 
-        $stmt->execute([
-            $id
-        ]);
+    $stmt->execute([
+        $salao['id']
+    ]);
 
 
-        return $stmt->fetch();
+    $dados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+    $categorias = [];
+
+
+    foreach ($dados as $item) {
+
+        $categoriaId = $item['categoria_id'];
+
+
+        if (!isset($categorias[$categoriaId])) {
+
+            $categorias[$categoriaId] = [
+                "id" => $categoriaId,
+                "nome" => $item['categoria_nome'],
+                "servicos" => []
+            ];
+
+        }
+
+
+        if ($item['servico_id']) {
+
+            $categorias[$categoriaId]["servicos"][] = [
+                "id" => $item['servico_id'],
+                "nome" => $item['servico_nome'],
+                "descricao" => $item['descricao'],
+                "preco" => $item['preco'],
+                "duracao_min" => $item['duracao_min']
+            ];
+
+        }
+
     }
 
-    // Lista todos os salões ativos
-    public function listar()
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT
-                id,
-                nome,
-                slug,
-                logo_url,
-                telefone,
-                email,
-                endereco,
-                ativo
-            FROM saloes
-            WHERE ativo = 1
-            ORDER BY nome
-        ");
+
+    $salao["categorias"] = array_values($categorias);
 
 
-        $stmt->execute();
-
-
-        return $stmt->fetchAll();
-    }
+    return $salao;
+}
 }
